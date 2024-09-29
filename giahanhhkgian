@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mô Tả Hình Học Không Gian</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+        h1 { text-align: center; }
+        #inputArea { text-align: center; margin-bottom: 20px; }
+        #canvasContainer { width: 100%; height: 400px; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <h1>Mô Tả Hình Học Không Gian</h1>
+    <div id="inputArea">
+        <input type="text" id="shapeInput" placeholder="Nhập hình (cube, sphere, pyramid)" />
+        <button id="drawButton">Vẽ Hình</button>
+    </div>
+    <div id="canvasContainer"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, 400);
+        document.getElementById('canvasContainer').appendChild(renderer.domElement);
+
+        camera.position.z = 5;
+
+        function drawShape(shape) {
+            // Xóa các đối tượng cũ
+            while (scene.children.length > 0) {
+                scene.remove(scene.children[0]);
+            }
+
+            let geometry;
+            let material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+
+            switch (shape.toLowerCase()) {
+                case 'cube':
+                    geometry = new THREE.BoxGeometry();
+                    break;
+                case 'sphere':
+                    geometry = new THREE.SphereGeometry(1, 32, 32);
+                    material.color.set(0xff0000);
+                    break;
+                case 'pyramid':
+                    geometry = new THREE.ConeGeometry(1, 2, 4);
+                    material.color.set(0x0000ff);
+                    break;
+                default:
+                    alert('Hình không hợp lệ! Vui lòng nhập cube, sphere, hoặc pyramid.');
+                    return;
+            }
+
+            const mesh = new THREE.Mesh(geometry, material);
+            scene.add(mesh);
+
+            animate();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            scene.children.forEach(child => {
+                child.rotation.x += 0.01;
+                child.rotation.y += 0.01;
+            });
+            renderer.render(scene, camera);
+        }
+
+        document.getElementById('drawButton').addEventListener('click', () => {
+            const shapeInput = document.getElementById('shapeInput').value;
+            drawShape(shapeInput);
+        });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, 400);
+        });
+    </script>
+</body>
+</html>
